@@ -1,1 +1,1 @@
-"""AiiDA plugin package for calculating Photoluminescence spectra"""
+"""AiiDA plugin package for calculating Photoluminescence spectra."""
