@@ -4,6 +4,8 @@ project:
   id: a557e2e8-77c6-4b93-96eb-a33e837935d4
   title: aiida-pl
   description: AiiDA plugin package for calculating Photoluminescence spectra.
+  exclude:
+    - '*.ipynb'
   # keywords: []
   # authors: []
   # github: https://github.com/
