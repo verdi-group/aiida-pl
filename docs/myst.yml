@@ -6,6 +6,10 @@ project:
   description: AiiDA plugin package for calculating Photoluminescence spectra.
   exclude:
     - '*.ipynb'
+  toc:
+    - file: index.md
+    - file: setup.md
+    - file: levels.md
   # keywords: []
   # authors: []
   # github: https://github.com/

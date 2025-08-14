@@ -21,6 +21,16 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 
+dependencies = [
+  "aiida-core",
+  "aiida-shell",
+  "aiida-vasp",
+  "aiida-quantumespresso"
+]
+
+[project.entry-points."aiida.workflows"]
+"pl.levels" = "aiida_pl.workchains.:EnergyLevelsWorkChain"
+
 [tool.hatch.version]
 path = "src/aiida_pl/__about__.py"
 

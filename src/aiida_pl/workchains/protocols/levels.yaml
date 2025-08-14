@@ -1,0 +1,39 @@
+default_inputs:
+  potential_family: PBE.64
+  relax:
+    clean_workdir: false
+    parameters:
+      incar:
+        ediff: 1.0e-05
+        ediffg: -0.02
+        encut: 500
+        ibrion: 2
+        isif: 2
+        ismear: 0
+        ispin: 2
+        isym: 0
+        lcharg: false
+        lreal: Auto
+        lwave: false
+        nsw: 200
+        prec: Accurate
+        sigma: 0.05
+  scf:
+    clean_workdir: false
+    parameters:
+      incar:
+        ediff: 1.0e-06
+        encut: 500
+        ismear: 0
+        ispin: 2
+        istart: 0
+        isym: 0
+        lcharg: true
+        lreal: Auto
+        lwave: true
+        prec: Accurate
+        sigma: 0.05
+default_protocol: default
+protocols:
+    default:
+        description: 'Default protocol'
