@@ -123,7 +123,7 @@ class EnergyLevelsWorkChain(engine.WorkChain, ProtocolMixin):
 
     def assign_outputs(self) -> engine.ExitCode | None:
         """Assign the outputs."""
-        self.out("energy_levels", parse_eigenval(self.ctx["scf"].outputs.retrieved)['energy_levels'])
+        self.out("energy_levels", parse_eigenval(self.ctx["scf"].outputs.retrieved))
 
 
 @engine.calcfunction
@@ -137,8 +137,9 @@ def parse_eigenval(retrieved_data: orm.FolderData):
     energy_levels = orm.ArrayData()
     energy_levels.set_array("up_levels", eigenval.get_eigenvalues()[0, 0, :])
     energy_levels.set_array("down_levels", eigenval.get_eigenvalues()[1, 0, :])
+    energy_levels.base.attributes.set('number_of_electrons', eigenval.get_metadata()["some_num"])
 
-    return {"energy_levels": energy_levels, "number_of_electrons": orm.Int(eigenval.get_metadata()["some_num"])}
+    return energy_levels
 
 
 @engine.calcfunction
