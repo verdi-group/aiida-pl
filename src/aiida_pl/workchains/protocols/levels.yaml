@@ -10,7 +10,6 @@ default_inputs:
         ibrion: 2
         isif: 2
         ismear: 0
-        ispin: 2
         isym: 0
         lcharg: false
         lreal: Auto
@@ -25,7 +24,6 @@ default_inputs:
         ediff: 1.0e-06
         encut: 500
         ismear: 0
-        ispin: 2
         istart: 0
         isym: 0
         lcharg: true
