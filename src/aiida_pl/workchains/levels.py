@@ -44,20 +44,10 @@ class EnergyLevelsWorkChain(engine.WorkChain, ProtocolMixin):
             valid_type=orm.Dict,
             required=True,
         )
-        spec.input("tdm_script", valid_type=orm.Code, required=True)
-        spec.input(
-            "number_tdm_levels",
-            valid_type=orm.Int,
-            default=lambda: orm.Int(4),
-            help="Number of empty levels to calculate the TDM for.",
-        )
-
         spec.output("relaxed_structure", valid_type=orm.StructureData)
         spec.output("energy_levels", valid_type=orm.ArrayData)
-        spec.output("tdm_up", valid_type=orm.SinglefileData)
-        spec.output("tdm_dw", valid_type=orm.SinglefileData)
 
-        spec.outline(cls.relax, cls.scf, cls.calculate_tdm, cls.assign_outputs)
+        spec.outline(cls.relax, cls.scf, cls.assign_outputs)
 
     @classmethod
     def get_protocol_filepath(cls):
@@ -74,7 +64,6 @@ class EnergyLevelsWorkChain(engine.WorkChain, ProtocolMixin):
         structure: orm.StructureData,
         vasp_gam_code: orm.Code,
         vasp_std_code: orm.Code,
-        tdm_script: orm.Code,
         options: dict | orm.Dict,
         overrides=None,
     ):
@@ -102,7 +91,6 @@ class EnergyLevelsWorkChain(engine.WorkChain, ProtocolMixin):
         builder.structure = structure
         builder.relax = relax_inputs
         builder.scf = scf_inputs
-        builder.tdm_script = tdm_script
 
         return builder
 
@@ -133,40 +121,9 @@ class EnergyLevelsWorkChain(engine.WorkChain, ProtocolMixin):
 
         return {"scf": self.submit(VaspWorkChain, inputs)}
 
-    def calculate_tdm(self) -> engine.ExitCode | None:
-        """Calculate the transition dipole moments."""
-
-        eigenval_data = parse_eigenval(self.ctx["scf"].outputs.retrieved)
-
-        self.out("energy_levels", eigenval_data["energy_levels"])
-        nelectrons = eigenval_data["number_of_electrons"].value
-        min_level = nelectrons // 2 + 1
-        max_level = nelectrons // 2 + self.inputs["number_tdm_levels"].value
-
-        remote_data = self.ctx["scf"].outputs.remote_folder
-
-        inputs = {
-            "code": self.inputs.tdm_script,
-            "nodes": {"remote_path": get_remote_path(remote_data)},
-            "arguments": f"{min_level} {max_level} " + "{remote_path}",
-            "outputs": ["tdm_up.dat", "tdm_dw.dat"],
-            "metadata": {
-                # This is unfortunately still necessary, see
-                # https://github.com/aiidateam/aiida-core/issues/6972
-                "options": {
-                    "resources": {
-                        "num_machines": 1,
-                        "tot_num_mpiprocs": 1,
-                    }
-                }
-            },
-        }
-        return {"tdm": self.submit(ShellJob, inputs)}
-
     def assign_outputs(self) -> engine.ExitCode | None:
-        """Assign the final outputs."""
-        self.out("tdm_up", self.ctx["tdm"].outputs["tdm_up_dat"])
-        self.out("tdm_dw", self.ctx["tdm"].outputs["tdm_dw_dat"])
+        """Assign the outputs."""
+        self.out("energy_levels", parse_eigenval(self.ctx["scf"].outputs.retrieved)['energy_levels'])
 
 
 @engine.calcfunction
