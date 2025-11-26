@@ -129,17 +129,24 @@ class EnergyLevelsWorkChain(engine.WorkChain, ProtocolMixin):
 def parse_eigenval(retrieved_data: orm.FolderData):
     """Parse the Gamma-point energy-levels"""
     from parsevasp.eigenval import Eigenval
+    from parsevasp.vasprun import Xml
 
     with retrieved_data.open("EIGENVAL") as handle:
         eigenval = Eigenval(file_handler=handle)
+
+    with retrieved_data.open("vasprun.xml", "rb") as handle:
+        xml = Xml(file_handler=handle)
 
     energy_levels = orm.ArrayData()
 
     if eigenval.get_eigenvalues().shape[0] == 2:  # noqa: PLR2004
         energy_levels.set_array("up_levels", eigenval.get_eigenvalues()[0, 0, :])
         energy_levels.set_array("down_levels", eigenval.get_eigenvalues()[1, 0, :])
+        energy_levels.set_array("up_occupations", xml.get_occupancies()["up"][:, 0])
+        energy_levels.set_array("down_occupations", xml.get_occupancies()["down"][:, 0])
     else:
         energy_levels.set_array("levels", eigenval.get_eigenvalues()[0, 0, :])
+        energy_levels.set_array("occupations", xml.get_occupancies()["total"][:, 0])
 
     energy_levels.base.attributes.set("number_of_electrons", eigenval.get_metadata()["some_num"])
 
