@@ -1,5 +1,7 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: v0.2.0
-_src_path: https://github.com/mbercx/aiida-plugin-copier
+_commit: v0.11.1
+_src_path: https://github.com/mbercx/python-copier
 description: AiiDA plugin package for calculating Photoluminescence spectra.
-plugin_name: aiida-pl
+doc_deploy: github
+docs: myst
+package_name: aiida-pl

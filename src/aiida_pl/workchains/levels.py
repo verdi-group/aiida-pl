@@ -25,7 +25,9 @@ class EnergyLevelsWorkChain(engine.WorkChain, ProtocolMixin):
             namespace="relax",
         )
         spec.expose_inputs(
-            process_class=VaspWorkChain, exclude=("structure", "potential_family", "potential_mapping"), namespace="scf"
+            process_class=VaspWorkChain,
+            exclude=("structure", "potential_family", "potential_mapping"),
+            namespace="scf",
         )
         spec.input(
             "structure",
@@ -76,7 +78,9 @@ class EnergyLevelsWorkChain(engine.WorkChain, ProtocolMixin):
         if "potential_mapping" in inputs:
             builder.potential_mapping = inputs["potential_mapping"]
         else:
-            builder.potential_mapping = {element: element for element in structure.get_symbols_set()}
+            builder.potential_mapping = {
+                element: element for element in structure.get_symbols_set()
+            }
 
         kpoints = orm.KpointsData()
         kpoints.set_kpoints_mesh([1, 1, 1])
@@ -111,11 +115,16 @@ class EnergyLevelsWorkChain(engine.WorkChain, ProtocolMixin):
         inputs["potential_family"] = self.inputs.potential_family
         inputs["potential_mapping"] = self.inputs.potential_mapping
 
-        additional_retrieve_list = inputs["options"].get("additional_retrieve_list") or []
+        additional_retrieve_list = (
+            inputs["options"].get("additional_retrieve_list") or []
+        )
 
         if "EIGENVAL" not in additional_retrieve_list:
             options = inputs["options"].get_dict()
-            options["additional_retrieve_list"] = (*additional_retrieve_list, "EIGENVAL")
+            options["additional_retrieve_list"] = (
+                *additional_retrieve_list,
+                "EIGENVAL",
+            )
             inputs["options"] = options
 
         return {"scf": self.submit(VaspWorkChain, inputs)}
@@ -148,7 +157,9 @@ def parse_eigenval(retrieved_data: orm.FolderData):
         energy_levels.set_array("levels", eigenval.get_eigenvalues()[0, 0, :])
         energy_levels.set_array("occupations", xml.get_occupancies()["total"][:, 0])
 
-    energy_levels.base.attributes.set("number_of_electrons", eigenval.get_metadata()["some_num"])
+    energy_levels.base.attributes.set(
+        "number_of_electrons", eigenval.get_metadata()["some_num"]
+    )
 
     return energy_levels
 
