@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from aiida import engine, orm
 from aiida_quantumespresso.workflows.protocols.utils import ProtocolMixin
-from aiida_shell import ShellJob
 from aiida_vasp.workchains.v2.vasp import VaspWorkChain, potential_family_validator
 
 if TYPE_CHECKING:
@@ -135,9 +134,14 @@ def parse_eigenval(retrieved_data: orm.FolderData):
         eigenval = Eigenval(file_handler=handle)
 
     energy_levels = orm.ArrayData()
-    energy_levels.set_array("up_levels", eigenval.get_eigenvalues()[0, 0, :])
-    energy_levels.set_array("down_levels", eigenval.get_eigenvalues()[1, 0, :])
-    energy_levels.base.attributes.set('number_of_electrons', eigenval.get_metadata()["some_num"])
+
+    if eigenval.get_eigenvalues().shape[0] == 2:  # noqa: PLR2004
+        energy_levels.set_array("up_levels", eigenval.get_eigenvalues()[0, 0, :])
+        energy_levels.set_array("down_levels", eigenval.get_eigenvalues()[1, 0, :])
+    else:
+        energy_levels.set_array("levels", eigenval.get_eigenvalues()[0, 0, :])
+
+    energy_levels.base.attributes.set("number_of_electrons", eigenval.get_metadata()["some_num"])
 
     return energy_levels
 
